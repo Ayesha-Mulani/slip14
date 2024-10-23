@@ -1,0 +1,36 @@
+SLIP 14#pip install apyori pandas numpy matplotlib
+
+# Import necessary libraries
+import pandas as pd  # For data manipulation
+import numpy as np  # For numerical operations
+from apyori import apriori  # For implementing the Apriori algorithm
+import matplotlib.pyplot as plt  # For data visualization
+
+# Load the groceries dataset
+data = pd.read_csv('groceries - groceries.csv', header=None)  # Read the CSV file without headers
+
+# Prepare the dataset for the Apriori algorithm
+# This code iterates over each row in data.values and creates a list of string values, filtering out any null values in a single line.
+# It eliminates the need for the outer loop by directly processing the rows.
+transactions = [[str(value) for value in row if pd.notnull(value)] for row in data.values]
+
+# Apply the Apriori algorithm
+rules = apriori(transactions, min_support=0.01, min_confidence=0.5)  # Find frequent itemsets with specified support and confidence
+
+# Extract rules and their support and confidence
+results = list(rules)  # Convert results to a list
+
+# Print support and confidence for each rule
+for result in results:
+    support = result.support  # Get support of the rule
+    items = result.items  # Get items in the rule
+    # Calculate confidence
+    if result.ordered_statistics:  # Ensure there are ordered statistics
+        for ordered_stat in result.ordered_statistics:
+            confidence = ordered_stat.confidence  # Get confidence of the rule
+            print(f"Rule: {list(items)}, Support: {support:.4f}, Confidence: {confidence:.4f}")  # Print the rule, support, and confidence
+
+# Check the CSV File: Open the groceries.csv file in a text editor or Excel to inspect its structure. Look for:
+# - Rows with missing values.
+# - Extra commas or delimiters.
+# - Inconsistent row lengths.
