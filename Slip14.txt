@@ -1,36 +1,26 @@
-SLIP 14#pip install apyori pandas numpy matplotlib
-
-# Import necessary libraries
-import pandas as pd  # For data manipulation
-import numpy as np  # For numerical operations
+import pandas as pd
 from apyori import apriori  # For implementing the Apriori algorithm
-import matplotlib.pyplot as plt  # For data visualization
 
 # Load the groceries dataset
-data = pd.read_csv('groceries - groceries.csv', header=None)  # Read the CSV file without headers
+data = pd.read_csv('groceries - groceries.csv', header=None, on_bad_lines='skip')
 
 # Prepare the dataset for the Apriori algorithm
-# This code iterates over each row in data.values and creates a list of string values, filtering out any null values in a single line.
-# It eliminates the need for the outer loop by directly processing the rows.
 transactions = [[str(value) for value in row if pd.notnull(value)] for row in data.values]
 
-# Apply the Apriori algorithm
-rules = apriori(transactions, min_support=0.01, min_confidence=0.5)  # Find frequent itemsets with specified support and confidence
+# Apply the Apriori algorithm with lower thresholds
+rules = apriori(transactions, min_support=0.01, min_confidence=0.1)
 
 # Extract rules and their support and confidence
-results = list(rules)  # Convert results to a list
+results = list(rules)
 
 # Print support and confidence for each rule
-for result in results:
-    support = result.support  # Get support of the rule
-    items = result.items  # Get items in the rule
-    # Calculate confidence
-    if result.ordered_statistics:  # Ensure there are ordered statistics
-        for ordered_stat in result.ordered_statistics:
-            confidence = ordered_stat.confidence  # Get confidence of the rule
-            print(f"Rule: {list(items)}, Support: {support:.4f}, Confidence: {confidence:.4f}")  # Print the rule, support, and confidence
-
-# Check the CSV File: Open the groceries.csv file in a text editor or Excel to inspect its structure. Look for:
-# - Rows with missing values.
-# - Extra commas or delimiters.
-# - Inconsistent row lengths.
+if results:
+    for result in results:
+        support = result.support
+        items = result.items
+        if result.ordered_statistics:
+            for ordered_stat in result.ordered_statistics:
+                confidence = ordered_stat.confidence
+                print(f"Rule: {list(items)}, Support: {support:.4f}, Confidence: {confidence:.4f}")
+else:
+    print("No rules found with the given support and confidence thresholds.")
